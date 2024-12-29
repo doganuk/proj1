@@ -5,32 +5,32 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 
-export class InfrastructureStack extends Stack {
+export class InfrastructureStack2 extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // Create DDB table to store the tasks.
-    const table = new ddb.Table(this, "Tasks", {
-      partitionKey: { name: "task_id", type: ddb.AttributeType.STRING },
+    // Create DDB table to store the flight.
+    const table = new ddb.Table(this, "Flights", {
+      partitionKey: { name: "source", type: ddb.AttributeType.STRING },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: "ttl",
     });
 
-    // Add GSI based on user_id.
-    table.addGlobalSecondaryIndex({
-      indexName: "user-index",
-      partitionKey: { name: "user_id", type: ddb.AttributeType.STRING },
-      sortKey: { name: "created_time", type: ddb.AttributeType.NUMBER },
-    });
+    // // Add GSI based on user_id.
+    // table.addGlobalSecondaryIndex({
+    //   indexName: "user-index",
+    //   partitionKey: { name: "user_id", type: ddb.AttributeType.STRING },
+    //   sortKey: { name: "created_time", type: ddb.AttributeType.NUMBER },
+    // });
 
     // Create an S3 bucket to host static website
-    const websiteBucket = new s3.Bucket(this, "TodoSiteBucket", {
-      websiteIndexDocument: "index.html",
-      removalPolicy: RemovalPolicy.DESTROY,
-      publicReadAccess: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
-      accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
-    });
+    // const websiteBucket = new s3.Bucket(this, "TodoSiteBucket", {
+    //   websiteIndexDocument: "index.html",
+    //   removalPolicy: RemovalPolicy.DESTROY,
+    //   publicReadAccess: true,
+    //   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS,
+    //   accessControl: s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
+    // });
 
     // Create Lambda function for the API.
     const api = new lambda.Function(this, "API", {
@@ -71,9 +71,9 @@ export class InfrastructureStack extends Stack {
     // });
 
     // Output the website URL
-    new CfnOutput(this, "TodoSiteURL", {
-      value: websiteBucket.bucketWebsiteUrl,
-    });
+    // new CfnOutput(this, "TodoSiteURL", {
+    //   value: websiteBucket.bucketWebsiteUrl,
+    // });
 
     // Output the API function url.
     new CfnOutput(this, "APIUrl", {

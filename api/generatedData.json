@@ -1,0 +1,9 @@
+[{"airline": "BRITISH AIRWAYS",
+  "arrival_dt": "2024/07/07",
+  "departure_dt": "2024/07/18",
+  "emissions": 46,
+  "number_of_stops": 2,
+  "price": "477.12",
+  "sink": "Amsterdam",
+  "source": "London"}
+]
