@@ -21,7 +21,7 @@ class PutTaskRequest(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Hello from ToDo API!"}
+    return {"message": "Hello from fastAPI API!"}
 
 
 @app.put("/create-task")

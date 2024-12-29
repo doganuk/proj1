@@ -5,7 +5,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 
-export class TodoInfraStack extends Stack {
+export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -46,7 +46,7 @@ export class TodoInfraStack extends Stack {
         },
       }),
       runtime: lambda.Runtime.PYTHON_3_9,
-      handler: "todo.handler",
+      handler: "fastAPI.handler",
       architecture: lambda.Architecture.ARM_64,
       environment: {
         TABLE_NAME: table.tableName,
@@ -64,11 +64,11 @@ export class TodoInfraStack extends Stack {
       },
     });
 
-    // Deploy site contents to S3 bucket
-    new s3deploy.BucketDeployment(this, "DeployTodoSite", {
-      sources: [s3deploy.Source.asset("../todo-site/out")],
-      destinationBucket: websiteBucket,
-    });
+    // // Deploy site contents to S3 bucket
+    // new s3deploy.BucketDeployment(this, "DeployTodoSite", {
+    //   sources: [s3deploy.Source.asset("../todo-site/out")],
+    //   destinationBucket: websiteBucket,
+    // });
 
     // Output the website URL
     new CfnOutput(this, "TodoSiteURL", {

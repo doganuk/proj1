@@ -11,7 +11,7 @@ The `/api` folder contains the Python FastAPI code.
 
 ## Infrastructure Folder
 
-The `/todo-infra` folder contains the CDK code to deploy all the infrastructure
+The `/infrastructure-aws` folder contains the CDK code to deploy all the infrastructure
 (Lambda function and DynamoDB table) to your AWS account.
 
 You must have [AWS CLI](https://aws.amazon.com/cli/) configured, and
@@ -29,14 +29,14 @@ Then run bootstrap if you never used CDK with your account before.
 cdk bootstrap
 ```
 
-Before you can deploy you need to build the front-end folder. Go into the `todo-site` folder and
+Before you can deploy you need to build the front-end folder. Go into the `infrastructure-aws` folder and
 build the NextJS app.
 
 ```bash
 npm run build
 ```
 
-Then go back to the `todo-infra` folder and deploy the stack. The site won't work yet because you'll need to get your API endpoint and update the front-end code too (see below).
+Then go back to the `infrastructure-aws` folder and deploy the stack. The site won't work yet because you'll need to get your API endpoint and update the front-end code too (see below).
 
 ```bash
 cdk deploy

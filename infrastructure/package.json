@@ -1,8 +1,8 @@
 {
-  "name": "todo-infra",
+  "name": "infrastructure-aws",
   "version": "0.1.0",
   "bin": {
-    "todo-infra": "bin/todo-infra.js"
+    "infrastructure-aws": "bin/infrastructure-aws.js"
   },
   "scripts": {
     "build": "tsc",
