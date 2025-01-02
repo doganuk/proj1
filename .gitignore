@@ -2,3 +2,4 @@
 **/*.zip
 api/lib
 todo-site
+frontend/node_modules
