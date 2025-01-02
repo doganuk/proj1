@@ -10,8 +10,8 @@ from boto3.dynamodb.conditions import Key
 import json
 from random import randint, random
 import datetime
-from datetime import datetime
-import time
+from datetime import date, datetime, time, timedelta
+from createData import flight_data
 
 app = FastAPI()
 handler = Mangum(app)
@@ -39,43 +39,51 @@ async def root():
 async def root():
     return {"message": "Hello from fastAPI API!"}
 
-@app.put("/seed112")
+@app.put("/seed11")
 async def list_flights(put_task_request: PutTaskRequest):
-    with open('generatedData.json', 'r') as myfile:
-        data=myfile.read()
-    # parse file
-    objects = json.loads(data)
+    # with open('generatedData.json', 'r') as myfile:
+    #     data=myfile.read()
+    # # parse file
+    # objects = json.loads(data)
+
+    createdData = flight_data(
+    source="London",
+    sink="Amsterdam",
+    departure_date=date(2024, 10, 3),
+    return_date=date(2024, 10, 10),
+    )
 
     #instance_id and cluster_id is the Key in dynamodb table 
 
-    for object in objects:
+    for object in createdData:
         item = {
         # "task_id":"k1",
         # "user_id":"k1",
-        "source": f"task_{randint(0, 2400)}",
-        "sink": object.get('sink'),
-        "airline": object.get('airline'),
-        "departure_dt": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),#object.get('departure_dt'),
-        "arrival_dt": object.get('arrival_dt'),
-        "number_of_stops": object.get('number_of_stops'),  # Expire after 24 hours.
-        "emissions": object.get('emissions'),
-        "price": object.get('price'),
+        "id": f"flight_{randint(0, 24000)}",
+        "source": object['source'],
+        "sink": object['sink'],
+        "airline": object['airline'],
+        "departure_dt":datetime.strftime(object['departure_dt'],'%d/%m/%Y, %H:%M:%S'), #object['departure_dt'],#object.get('departure_dt'),
+        "arrival_dt": datetime.strftime(object['arrival_dt'],'%d/%m/%Y, %H:%M:%S'),#object['arrival_dt'],
+        "number_of_stops": object['number_of_stops'],  # Expire after 24 hours.
+        "emissions": object['emissions'],
+        "price": object['price']
         }          
         table = _get_table()
         table.put_item(Item=item)
     
-    return {objects[0].get('airline')}
+    return {"success"}
     
-@app.get("/list-flights/{source}")
+@app.get("/list-flight/{source}")
 async def list_flights(source: str):
     # List the top N tasks from the table, using the user index.
     table = _get_table()
-    response = table.query(
-        KeyConditionExpression=Key("source").eq(source),
-        Limit=10,
-    )
-    flights = response.get("Items")
-    return {"flights": flights}
+    # response = table.query(
+    #     KeyConditionExpression=Key("source").eq(source),
+    #     Limit=10,
+    # )
+    # flights = response.get("Items")
+    return table.scan()["Items"]
 
 
 # @app.put("/create-task")

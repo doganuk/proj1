@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { InfrastructureStack2 } from '../lib/infrastructure-aws-stack';
+import { InfrastructureStack3 } from '../lib/infrastructure-aws-stack';
 
 const app = new cdk.App();
-new InfrastructureStack2(app, 'InfrastructureStack2', {
+new InfrastructureStack3(app, 'InfrastructureStack3', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

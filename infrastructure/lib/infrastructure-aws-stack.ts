@@ -5,13 +5,13 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 
-export class InfrastructureStack2 extends Stack {
+export class InfrastructureStack3 extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
     // Create DDB table to store the flight.
     const table = new ddb.Table(this, "Flights", {
-      partitionKey: { name: "source", type: ddb.AttributeType.STRING },
+      partitionKey: { name: "id", type: ddb.AttributeType.STRING },
       billingMode: ddb.BillingMode.PAY_PER_REQUEST,
       timeToLiveAttribute: "ttl",
     });
