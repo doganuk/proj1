@@ -9,6 +9,9 @@ from pydantic import BaseModel
 from boto3.dynamodb.conditions import Key
 import json
 from random import randint, random
+import datetime
+from datetime import datetime
+import time
 
 app = FastAPI()
 handler = Mangum(app)
@@ -45,24 +48,23 @@ async def list_flights(put_task_request: PutTaskRequest):
 
     #instance_id and cluster_id is the Key in dynamodb table 
 
-    # for object in objects:
-    item = {
-    # "task_id":"k1",
-    # "user_id":"k1",
-    "source": f"task_{randint(0, 2400)}",
-    "sink": "35",
-    "airline": "pegasus",
-    "departure_dt": "2024/17/01",
-    "arrival_dt": f"task_{1}",
-    "number_of_stops": int(86400),  # Expire after 24 hours.
-    "emissions": 1,
-    "price": f"task_{uuid4().hex}",
-    }
-                
-    table = _get_table()
-    table.put_item(Item=item)
+    for object in objects:
+        item = {
+        # "task_id":"k1",
+        # "user_id":"k1",
+        "source": f"task_{randint(0, 2400)}",
+        "sink": object.get('sink'),
+        "airline": object.get('airline'),
+        "departure_dt": datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),#object.get('departure_dt'),
+        "arrival_dt": object.get('arrival_dt'),
+        "number_of_stops": object.get('number_of_stops'),  # Expire after 24 hours.
+        "emissions": object.get('emissions'),
+        "price": object.get('price'),
+        }          
+        table = _get_table()
+        table.put_item(Item=item)
     
-    return {"task": objects[0].task.source}
+    return {objects[0].get('airline')}
     
 @app.get("/list-flights/{source}")
 async def list_flights(source: str):

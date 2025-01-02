@@ -1,9 +1,92 @@
-[{"airline": "BRITISH AIRWAYS",
-  "arrival_dt": "2024/07/07",
+[
+  {"airline": "BRITISH AIRWAYS",
+  "arrival_dt": "01/01/2025, 17:16:08",
   "departure_dt": "2024/07/18",
   "emissions": 46,
   "number_of_stops": 2,
   "price": "477.12",
   "sink": "Amsterdam",
-  "source": "London"}
+  "source": "London"
+  },
+  {
+  "airline": "BRITISH AIRWAYS",
+  "arrival_dt": "01/01/2025, 17:16:08",
+  "departure_dt": "2024/07/18",
+  "emissions": 47,
+  "number_of_stops": 2,
+  "price": "500.05",
+  "sink": "Amsterdam",
+  "source": "London"
+  },
+  {
+  "airline": "BRITISH AIRWAYS",
+  "arrival_dt": "2024/07/07",
+  "departure_dt": "2024/07/18",
+  "emissions": 48,
+  "number_of_stops": 2,
+  "price": "600.12",
+  "sink": "Amsterdam",
+  "source": "London"
+  },
+  {
+    "airline": "BRITISH AIRWAYS",
+    "arrival_dt": "2024/07/07",
+    "departure_dt": "2024/07/18",
+    "emissions": 49,
+    "number_of_stops": 2,
+    "price": "477.12",
+    "sink": "Amsterdam",
+    "source": "London"
+  },
+  {
+    "airline": "easyJet",
+    "arrival_dt": "2024/07/07",
+    "departure_dt": "2024/07/18",
+    "emissions": 50,
+    "number_of_stops": 2,
+    "price": "450.12",
+    "sink": "Amsterdam",
+    "source": "London"
+  },
+  {
+    "airline": "easyJet",
+    "arrival_dt": "2024/07/07",
+    "departure_dt": "2024/07/18",
+    "emissions": 51,
+    "number_of_stops": 2,
+    "price": "320.00",
+    "sink": "Amsterdam",
+    "source": "London"
+  },
+  {
+      "airline": "easyJet",
+      "arrival_dt": "2024/07/07",
+      "departure_dt": "2024/07/18",
+      "emissions": 52,
+      "number_of_stops": 2,
+      "price": "477.12",
+      "sink": "Amsterdam",
+      "source": "London"
+  },
+  {
+    "airline": "easyJet",
+    "arrival_dt": "2024/07/07",
+    "departure_dt": "2024/07/18",
+    "emissions": 53,
+    "number_of_stops": 2,
+    "price": "477.12",
+    "sink": "Amsterdam",
+    "source": "London"
+  },
+  {
+    "airline": "easyJet",
+    "arrival_dt": "2024/07/07",
+    "departure_dt": "2024/07/18",
+    "emissions": 54,
+    "number_of_stops": 2,
+    "price": "240.00",
+    "sink": "Amsterdam",
+    "source": "London"
+  }
 ]
+
