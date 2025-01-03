@@ -7,7 +7,135 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <title>Document</title>
 </head>
-<body>
-    <h1 x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></h1>
+<body class="bg-gray-100 p-6">
+    <div x-data="{ 
+        flights: [],
+        airlines: [],
+        selectedAirline: 'all',
+        selectedStops: 'all',
+        sortBy: 'price',
+        
+        init() {
+            fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1')
+                .then(response => response.json())
+                .then(data => {
+                    this.flights = data;
+                    this.airlines = [...new Set(data.map(flight => flight.airline))];
+                });
+        },
+        
+        filteredFlights() {
+            return this.flights.filter(flight => {
+                const airlineMatch = this.selectedAirline === 'all' || flight.airline === this.selectedAirline;
+                const stopsMatch = this.selectedStops === 'all' || flight.number_of_stops === parseInt(this.selectedStops);
+                return airlineMatch && stopsMatch;
+            }).sort((a, b) => a[this.sortBy] - b[this.sortBy]).slice(0,5);
+        }
+    }" class="max-w-7xl mx-auto">
+        
+        <!-- Filters Section -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Airline</label>
+                <select x-model="selectedAirline" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">All Airlines</option>
+                    <template x-for="airline in airlines" :key="airline">
+                        <option x-text="airline" :value="airline"></option>
+                    </template>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Stops</label>
+                <select x-model="selectedStops" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">All</option>
+                    <option value="0">Non-stop</option>
+                    <option value="1">1 Stop</option>
+                    <option value="2">2 Stops</option>
+                    <option value="3">3 Stops</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <select x-model="sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="price">Price</option>
+                    <option value="emissions">Emissions</option>
+                    <option value="number_of_stops">Stops</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Flight Cards -->
+        <div class="class=min-w-full leading-normal border-t-2 bg-white text-sm">
+            <template x-for="flight in filteredFlights()" :key="flight.id">
+                <div class="px-5 py-3 border-b-2 border-r-2 border-l-2 
+                text-left text-xs text-gray-600 ">
+                    <div class="grid grid-flow-col gap-1 items-center text-sm">
+                        <div class="col-span-1 w-10 h-10">
+                            <img class="w-full h-full rounded-full"
+                                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80"
+                                alt="" />
+                        </div>
+                        
+                        <div class="col-span-7">
+                            <div class="font-medium ">Departure</div>
+                            <div class="font-medium text-gray-400 text-xs" x-text="flight.departure_dt"></div>
+                            <div class="text-xs text-gray-400" >Non-Stop 1 hr 15 min easy-jet Operated by EuroFlyer</div>
+                        </div>
+                        <div class="col-span-3 text-right">
+                            <div class="font-medium" x-text="'£' + flight.price"></div>
+                            <div class="text-xs text-gray-400" x-text="flight.number_of_stops + ' stops'"></div>
+                            <div class="text-xs text-gray-400" x-text="flight.emissions + ' kg CO2'"></div>
+                        </div>
+                        <div class="col-span-2 text-right">
+                            <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                                <span aria-hidden
+                                    class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+                                <span class="relative">Activo</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <table class="min-w-full leading-normal">
+        <tbody>
+            <tr class="border border-gray-200">
+                <td class="px-5 py-5  bg-white text-sm">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 w-10 h-10">
+                            <img class="w-full h-full rounded-full"
+                                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80"
+                                alt="" />
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-gray-900 whitespace-no-wrap">
+                                Vera Carpenter
+                            </p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">Admin</p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <p class="text-gray-900 whitespace-no-wrap">
+                        Jan 21, 2020
+                    </p>
+                </td>
+                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                    <span
+                        class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
+                        <span aria-hidden
+                            class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
+                        <span class="relative">Activo</span>
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
