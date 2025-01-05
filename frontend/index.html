@@ -5,16 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/main.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Document</title>
 </head>
-<body class="bg-gray-100 p-6">
+<body class=" p-60">
     <div x-data="{ 
         flights: [],
         airlines: [],
+        showFromCalendar: false,
+        showToCalendar: false,
+        fromDate: new Date('2024-03-10'),
+        toDate: new Date('2024-03-10'),
         selectedAirline: 'all',
         selectedStops: 'all',
-        sortBy: 'price',
+        sortBy: 'airline',
         
+
+        formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short'
+            });
+        },
+
         init() {
             fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1')
                 .then(response => response.json())
@@ -26,46 +42,173 @@
         
         filteredFlights() {
             return this.flights.filter(flight => {
+                const depDate = new Date(this.fromDate);
+                const arrDate = new Date(this.toDate);
+                const flightDepDate = new Date(flight.departure_dt);
+                const flightArrDate = new Date(flight.arrival_dt);
+                const datematch = flightDepDate.toDateString() === depDate.toDateString() &&
+                       flightArrDate.toDateString() === arrDate.toDateString();
+
                 const airlineMatch = this.selectedAirline === 'all' || flight.airline === this.selectedAirline;
                 const stopsMatch = this.selectedStops === 'all' || flight.number_of_stops === parseInt(this.selectedStops);
-                return airlineMatch && stopsMatch;
+                return datematch && airlineMatch && stopsMatch;
             }).sort((a, b) => a[this.sortBy] - b[this.sortBy]).slice(0,5);
         }
     }" class="max-w-7xl mx-auto">
         
+
+<div class="flex">
+    <div class="flex items-center me-4">
+        <button class="flex items-center text-sm pe-1 text-xs text-gray-900 rounded-full  md:me-0 dark:text-white" type="button">
+            <span class="sr-only">Open user menu</span>
+            <img class="w-4 h-4 me-2 " src="./assets/roundtrip.png" >
+             Round Trip
+            <svg class="w-2 h-2 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+            </svg>
+        </button>
+    </div>
+    <div class="flex items-center me-4">
+        <button class="flex items-center text-sm pe-1 text-xs text-gray-900 rounded-full  md:me-0 dark:text-white" type="button">
+            <span class="sr-only">Open user menu</span>
+            <img class="w-4 h-4 me-2 " src="./assets/man.png" >
+            1
+            <svg class="w-2 h-2 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+            </svg>
+        </button>
+    </div>
+    <div class="flex items-center me-4">
+        <button class="flex items-center text-sm pe-1 text-xs text-gray-900 rounded-full  md:me-0 dark:text-white" type="button">
+            <span class="sr-only">Open user menu</span>
+            Economy
+            <svg class="w-2 h-2 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+   
+        
         <!-- Filters Section -->
-        <div class="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-3 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Airline</label>
-                <select x-model="selectedAirline" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    <option value="all">All Airlines</option>
-                    <template x-for="airline in airlines" :key="airline">
-                        <option x-text="airline" :value="airline"></option>
-                    </template>
-                </select>
+        <div class="grid grid-flow-col gap-1 items-center text-sm">
+            <div class="col-span-5 text-right ">
+                <!-- Filtreler ve Sıralama -->
+               
+                <!-- Tarih Seçiciler -->
+                <div class="relative py-5">
+                    <div class="flex border p-2">
+                        <i class="fas fa-calendar-alt mr-5"></i>
+                        <input 
+                            type="text" 
+                            x-model="formatDate(fromDate)"
+                            @click="showFromCalendar = !showFromCalendar"
+                            class=" flex-grow text-left outline-none"
+                            readonly
+                        >
+                        <div class="text-right">
+                            <button @click="fromDate = new Date(fromDate.setDate(fromDate.getDate() - 1))"
+                                class="px-2"><i class="fas fa-chevron-left"></i></button>
+                            <button @click="fromDate = new Date(fromDate.setDate(fromDate.getDate() + 1))"
+                                class="px-2"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+          
             </div>
-            
+            <div class="col-span-5 text-right">
+                <div class="relative py-5">
+                    <div class="flex border p-2">
+                        <i class="fas fa-calendar-alt mr-5"></i>
+                        <input 
+                            type="text" 
+                            x-model="formatDate(toDate)"
+                            @click="showToCalendar = !showToCalendar"
+                            class="flex-grow text-left outline-none"
+                            readonly
+                        >
+                        <div class="text-right">
+                            <button @click="toDate = new Date(toDate.setDate(toDate.getDate() - 1))"
+                                class="px-2"><i class="fas fa-chevron-left"></i></button>
+                            <button @click="toDate = new Date(toDate.setDate(toDate.getDate() + 1))"
+                                class="px-2"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white mb-6 grid grid-cols-7 gap-2">
+            <div class= " text-xs">
+                <div class=" ">
+                    <img class="object-contain h-10 w-65 "
+                        src="./assets/filters.png"/>
+                </div>
+                <div>
+               
+                </div>
+            </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Stops</label>
-                <select x-model="selectedStops" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    <option value="all">All</option>
+                <select x-model="selectedStops" class="w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Stops</option>
                     <option value="0">Non-stop</option>
                     <option value="1">1 Stop</option>
                     <option value="2">2 Stops</option>
                     <option value="3">3 Stops</option>
                 </select>
             </div>
-            
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
-                <select x-model="sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    <option value="price">Price</option>
-                    <option value="emissions">Emissions</option>
-                    <option value="number_of_stops">Stops</option>
+                <!-- <label class="block text-sm font-medium text-gray-700 mb-2">Airline</label> -->
+                <select x-model="selectedAirline" class="w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Airlines</option>
+                    <template x-for="airline in airlines" :key="airline">
+                        <option x-text="airline" :value="airline"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div>
+                <select x-model="selectedStops" class="w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Bags</option>
+                </select>
+            </div>
+            <div>
+                <select x-model="selectedStops" class="w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Price</option>
+                </select>
+            </div>
+            <div>
+                <select x-model="selectedStops" class="w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Times</option>
+                </select>
+            </div>
+            <div>
+                <select x-model="selectedStops" class="w-full h-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">Emissions</option>
                 </select>
             </div>
         </div>
+        
 
+
+        <div class="grid grid-flow-col gap-1 items-center text-sm">
+            <div class="col-span-5 py-2 font-medium">Top departing Options</div>
+            <div class="col-span-5  text-right py-2 text-blue-600">
+                <div>
+                    Sort by: 
+                    <select x-model="sortBy" class="w-50">
+                        <option value="airline">Top Flights</option>
+                        <option value="price">Price</option>
+                        <option value="emissions">Emissions</option>
+                        <option value="number_of_stops">Stops</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="text-xs text-gray-400 py-3">
+            <p>Ranked Based on Price and convenience. Prices include requiredtaxes + fees for 1 adult.Optional Charges and <span class="underline">bag fees</span> may apply.<span class="underline">Passanger assistance info.</span></p>
+        </div>
         <!-- Flight Cards -->
         <div class="class=min-w-full leading-normal border-t-2 bg-white text-sm">
             <template x-for="flight in filteredFlights()" :key="flight.id">
@@ -101,41 +244,12 @@
         </div>
     </div>
 
-    <table class="min-w-full leading-normal">
-        <tbody>
-            <tr class="border border-gray-200">
-                <td class="px-5 py-5  bg-white text-sm">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 w-10 h-10">
-                            <img class="w-full h-full rounded-full"
-                                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.2&w=160&h=160&q=80"
-                                alt="" />
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-gray-900 whitespace-no-wrap">
-                                Vera Carpenter
-                            </p>
-                        </div>
-                    </div>
-                </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p class="text-gray-900 whitespace-no-wrap">Admin</p>
-                </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <p class="text-gray-900 whitespace-no-wrap">
-                        Jan 21, 2020
-                    </p>
-                </td>
-                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                    <span
-                        class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                        <span aria-hidden
-                            class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                        <span class="relative">Activo</span>
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+
+            <!-- Filters Section -->
+            <div class="grid grid-flow-col gap-1 items-center text-sm">
+                <div class="col-span-5 bg-green-200 p-2">Top departing Options</div>
+                <div class="col-span-5 bg-blue-500 text-right p-2">Sort by:Top Flights</div>
+            </div>
+
 </body>
 </html>
