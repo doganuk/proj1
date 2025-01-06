@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search</title>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 p-6">
+    <div x-data="{
+        flights: [],
+        showFromCalendar: false,
+        showToCalendar: false,
+        fromDate: new Date('2024-03-10'),
+        toDate: new Date('2024-03-10'),
+        sortBy: 'price',
+        filterAirline: 'all',
+        
+        async fetchFlights() {
+            const response = await fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1');
+            this.flights = await response.json();
+        },
+
+        formatDate(date) {
+            return new Date(date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short'
+            });
+        },
+
+        filterFlights() {
+            return this.flights.filter(flight => {
+                const depDate = new Date(this.fromDate);
+                const arrDate = new Date(this.toDate);
+                const flightDepDate = new Date(flight.departure_dt);
+                const flightArrDate = new Date(flight.arrival_dt);
+                const datematch = flightDepDate.toDateString() === depDate.toDateString() &&
+                       flightArrDate.toDateString() === arrDate.toDateString();
+
+                const airlineMatch = this.filterAirline === 'all' || flight.airline === this.filterAirline;
+                return datematch && airlineMatch;
+            }).sort((a, b) => {
+                if (this.sortBy === 'price') return a.price - b.price;
+                if (this.sortBy === 'duration') return a.emissions - b.emissions;
+                return 0;
+            });
+        }
+    }" 
+    x-init="fetchFlights()">
+
+        <!-- Filtreler ve Sıralama -->
+        <div class="mb-8 flex gap-4">
+            <!-- Tarih Seçiciler -->
+            <div class="relative">
+                <div class="flex items-center border rounded-lg bg-white p-2">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    <input 
+                        type="text" 
+                        x-model="formatDate(fromDate)"
+                        @click="showFromCalendar = !showFromCalendar"
+                        class="outline-none"
+                        readonly
+                    >
+                    <div class="flex">
+                        <button @click="fromDate = new Date(fromDate.setDate(fromDate.getDate() - 1))"
+                            class="px-2"><i class="fas fa-chevron-left"></i></button>
+                        <button @click="fromDate = new Date(fromDate.setDate(fromDate.getDate() + 1))"
+                            class="px-2"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div class="flex items-center border rounded-lg bg-white p-2">
+                    <i class="fas fa-calendar-alt mr-2"></i>
+                    <input 
+                        type="text" 
+                        x-model="formatDate(toDate)"
+                        @click="showToCalendar = !showToCalendar"
+                        class="outline-none"
+                        readonly
+                    >
+                    <div class="flex">
+                        <button @click="toDate = new Date(toDate.setDate(toDate.getDate() - 1))"
+                            class="px-2"><i class="fas fa-chevron-left"></i></button>
+                        <button @click="toDate = new Date(toDate.setDate(toDate.getDate() + 1))"
+                            class="px-2"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sıralama Dropdown -->
+            <select x-model="sortBy" class="border rounded-lg p-2">
+                <option value="price">Sort by Price</option>
+                <option value="duration">Sort by Duration</option>
+            </select>
+
+            <!-- Havayolu Filtresi -->
+            <select x-model="filterAirline" class="border rounded-lg p-2">
+                <option value="all">All Airlines</option>
+                <option value="BRITISH AIRWAYS">British Airways</option>
+                <option value="EASYJET">EasyJet</option>
+            </select>
+        </div>
+
+        <!-- Uçuş Kartları -->
+        <div class="space-y-4">
+            <template x-for="flight in filterFlights()" :key="flight.id">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-bold" x-text="flight.airline"></span>
+                            <p class="text-sm text-gray-600" x-text="'Flight ' + flight.id"></p>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-bold text-xl" x-text="'€' + flight.price"></span>
+                            <p class="text-sm text-gray-600" x-text="flight.number_of_stops + ' stops'"></p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-4">
+                        <div>
+                            <p class="font-semibold" x-text="flight.source"></p>
+                            <p class="text-sm text-gray-600" x-text="new Date(flight.departure_dt).toLocaleTimeString()"></p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold" x-text="flight.sink"></p>
+                            <p class="text-sm text-gray-600" x-text="new Date(flight.arrival_dt).toLocaleTimeString()"></p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+</html>

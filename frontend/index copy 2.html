@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>Document</title>
+</head>
+<body class="bg-gray-100 p-6">
+    <div x-data="{ 
+        flights: [],
+        airlines: [],
+        selectedAirline: 'all',
+        selectedStops: 'all',
+        sortBy: 'price',
+        
+        init() {
+            fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1')
+                .then(response => response.json())
+                .then(data => {
+                    this.flights = data;
+                    this.airlines = [...new Set(data.map(flight => flight.airline))];
+                });
+        },
+        
+        filteredFlights() {
+            return this.flights.filter(flight => {
+                const airlineMatch = this.selectedAirline === 'all' || flight.airline === this.selectedAirline;
+                const stopsMatch = this.selectedStops === 'all' || flight.number_of_stops === parseInt(this.selectedStops);
+                return airlineMatch && stopsMatch;
+            }).sort((a, b) => a[this.sortBy] - b[this.sortBy]);
+        }
+    }" class="max-w-7xl mx-auto">
+        
+        <!-- Filters Section -->
+        <div class="bg-white p-4 rounded-lg shadow mb-6 grid grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Airline</label>
+                <select x-model="selectedAirline" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">All Airlines</option>
+                    <template x-for="airline in airlines" :key="airline">
+                        <option x-text="airline" :value="airline"></option>
+                    </template>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Stops</label>
+                <select x-model="selectedStops" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="all">All</option>
+                    <option value="0">Non-stop</option>
+                    <option value="1">1 Stop</option>
+                    <option value="2">2 Stops</option>
+                    <option value="3">3 Stops</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                <select x-model="sortBy" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="price">Price</option>
+                    <option value="emissions">Emissions</option>
+                    <option value="number_of_stops">Stops</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Flight Cards -->
+        <div class="space-y-4">
+            <template x-for="flight in filteredFlights()" :key="flight.id">
+                <div class="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow">
+                    <div class="grid grid-cols-4 gap-4">
+                        <div>
+                            <div class="text-lg font-bold" x-text="flight.airline"></div>
+                            <div class="text-sm text-gray-500" x-text="'Flight ' + flight.id"></div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm text-gray-600">Departure</div>
+                            <div class="font-medium" x-text="flight.departure_dt"></div>
+                            <div class="text-sm" x-text="flight.source"></div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm text-gray-600">Arrival</div>
+                            <div class="font-medium" x-text="flight.arrival_dt"></div>
+                            <div class="text-sm" x-text="flight.sink"></div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-blue-600" x-text="'€' + flight.price"></div>
+                            <div class="text-sm text-gray-500" x-text="flight.number_of_stops + ' stops'"></div>
+                            <div class="text-sm text-gray-500" x-text="flight.emissions + ' kg CO2'"></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Flight Search</title>
+</head>
+<body class="bg-gray-100 p-8">
+    <div x-data="{
+        flights: [],
+        filteredFlights: [],
+        airlines: [],
+        selectedStops: 'all',
+        selectedAirline: 'all',
+        selectedPriceRange: 'all',
+        selectedTimeRange: 'all',
+        selectedEmissions: 'all',
+
+        async fetchFlights() {
+            const response = await fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1');
+            this.flights = await response.json();
+            this.filteredFlights = this.flights;
+            this.airlines = [...new Set(this.flights.map(flight => flight.airline))];
+        },
+
+        filterFlights() {
+            this.filteredFlights = this.flights.filter(flight => {
+                const stopsMatch = this.selectedStops === 'all' || flight.number_of_stops === parseInt(this.selectedStops);
+                const airlineMatch = this.selectedAirline === 'all' || flight.airline === this.selectedAirline;
+                return stopsMatch && airlineMatch;
+            });
+        }
+    }" 
+    x-init="fetchFlights()">
+
+        <!-- Filtreler -->
+        <div class="mb-8 flex gap-4 flex-wrap">
+            <!-- Duraklar Filtresi -->
+            <select x-model="selectedStops" @change="filterFlights()" class="p-2 rounded border">
+                <option value="all">All Stops</option>
+                <option value="0">Non-stop</option>
+                <option value="1">1 Stop</option>
+                <option value="2">2 Stops</option>
+                <option value="3">3 Stops</option>
+            </select>
+
+            <!-- Havayolu Filtresi -->
+            <select x-model="selectedAirline" @change="filterFlights()" class="p-2 rounded border">
+                <option value="all">All Airlines</option>
+                <template x-for="airline in airlines">
+                    <option x-text="airline" :value="airline"></option>
+                </template>
+            </select>
+        </div>
+
+        <!-- Uçuş Kartları -->
+        <div class="space-y-4">
+            <template x-for="flight in filteredFlights" :key="flight.id">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="font-bold" x-text="flight.airline"></span>
+                            <span class="text-sm text-gray-500" x-text="'Flight ' + flight.id"></span>
+                        </div>
+                        <div class="text-xl font-bold" x-text="'$' + flight.price"></div>
+                    </div>
+                    
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <div class="text-lg" x-text="flight.source + ' → ' + flight.sink"></div>
+                            <div class="text-sm text-gray-500">
+                                <span x-text="flight.departure_dt"></span> - 
+                                <span x-text="flight.arrival_dt"></span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600" x-text="flight.number_of_stops + ' stops'"></div>
+                            <div class="text-sm text-green-600" x-text="'Emissions: ' + flight.emissions + 'g'"></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+</html>

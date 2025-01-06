@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>Document</title>
+</head>
+<div x-data="{ 
+    flights: [],
+    airlines: [],
+    selectedAirline: 'all',
+    selectedStops: 'all'
+}" x-init="fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1')
+    .then(response => response.json())
+    .then(data => {
+        flights = data;
+        airlines = [...new Set(data.map(flight => flight.airline))];
+    })">
+
+    <!-- Filtreler -->
+    <div class="filters">
+        <select x-model="selectedAirline">
+            <option value="all">All Airlines</option>
+            <template x-for="airline in airlines" :key="airline">
+                <option x-text="airline" :value="airline"></option>
+            </template>
+        </select>
+
+        <select x-model="selectedStops">
+            <option value="all">All Stops</option>
+            <option value="0">Non-stop</option>
+            <option value="1">1 Stop</option>
+            <option value="2">2 Stops</option>
+            <option value="3">3 Stops</option>
+        </select>
+    </div>
+
+    <!-- Uçuş Listesi -->
+    <div class="flight-container">
+        <template x-for="(flight, index) in flights.filter(f => 
+            (selectedAirline === 'all' || f.airline === selectedAirline) &&
+            (selectedStops === 'all' || f.number_of_stops.toString() === selectedStops)
+        )" :key="index">
+            <div class="flight-card">
+                <div class="flight-info">
+                    <span class="airline" x-text="flight.airline"></span>
+                    <span class="route" x-text="flight.source + ' → ' + flight.sink"></span>
+                    <span class="time" x-text="flight.departure_dt + ' - ' + flight.arrival_dt"></span>
+                    <span class="stops" x-text="flight.number_of_stops + ' stops'"></span>
+                    <span class="emissions" x-text="flight.emissions + ' kg CO2'"></span>
+                    <span class="price" x-text="'€' + flight.price"></span>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
+
+<style>
+    .filters {
+        margin: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    select {
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+    .flight-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .flight-card {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 8px;
+        width: 300px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .flight-info {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .airline {
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .route {
+        font-size: 1.1em;
+        color: #34495e;
+    }
+
+    .time {
+        color: #7f8c8d;
+    }
+
+    .price {
+        font-weight: bold;
+        color: #27ae60;
+        font-size: 1.2em;
+    }
+
+    .stops, .emissions {
+        color: #95a5a6;
+        font-size: 0.9em;
+    }
+</style>
+</body>
+</html>

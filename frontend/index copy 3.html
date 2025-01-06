@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/main.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>Document</title>
+</head>
+<body class="bg-gray-100 p-8">
+    <div x-data="{ 
+        flights: [],
+        filteredFlights: [],
+        sourceCity: '',
+        destinationCity: '',
+        selectedAirline: '',
+        selectedStops: '',
+        airlines: [],
+        stops: [0, 1, 2, 3]
+    }" 
+    x-init="fetch('https://zzzudod6mdgw7qjygmxio4ey5y0tndwh.lambda-url.eu-central-1.on.aws/list-flight/1')
+        .then(response => response.json())
+        .then(data => {
+            flights = data;
+            filteredFlights = data;
+            airlines = [...new Set(data.map(flight => flight.airline))];
+        })">
+
+        <!-- Filtreleme Alanı -->
+        <div class="mb-8 space-y-4">
+            <div class="flex justify-center gap-4 items-center">
+                <input type="text" x-model="sourceCity" placeholder="From" 
+                    class="p-2 border rounded">
+                <button @click="[sourceCity, destinationCity] = [destinationCity, sourceCity]"
+                    class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    ⇄
+                </button>
+                <input type="text" x-model="destinationCity" placeholder="To" 
+                    class="p-2 border rounded">
+            </div>
+
+            <div class="flex justify-center gap-4">
+                <select x-model="selectedAirline" class="p-2 border rounded">
+                    <option value="">All Airlines</option>
+                    <template x-for="airline in airlines">
+                        <option x-text="airline"></option>
+                    </template>
+                </select>
+
+                <select x-model="selectedStops" class="p-2 border rounded">
+                    <option value="">All Stops</option>
+                    <template x-for="stop in stops">
+                        <option x-text="stop"></option>
+                    </template>
+                </select>
+            </div>
+        </div>
+
+        <!-- Uçuş Listesi -->
+        <div class="space-y-4">
+            <template x-for="flight in filteredFlights.filter(f => 
+                (!sourceCity || f.source.toLowerCase().includes(sourceCity.toLowerCase())) &&
+                (!destinationCity || f.sink.toLowerCase().includes(destinationCity.toLowerCase())) &&
+                (!selectedAirline || f.airline === selectedAirline) &&
+                (!selectedStops || f.number_of_stops === parseInt(selectedStops))
+            )" :key="flight.id">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <div class="grid grid-cols-4 gap-4">
+                        <div>
+                            <p class="font-bold" x-text="flight.airline"></p>
+                            <p class="text-sm text-gray-600" x-text="'Flight ' + flight.id"></p>
+                        </div>
+                        <div>
+                            <p class="font-semibold" x-text="flight.source + ' → ' + flight.sink"></p>
+                            <p class="text-sm text-gray-600">
+                                <span x-text="flight.departure_dt"></span> - 
+                                <span x-text="flight.arrival_dt"></span>
+                            </p>
+                        </div>
+                        <div>
+                            <p class="font-semibold" x-text="'Stops: ' + flight.number_of_stops"></p>
+                            <p class="text-sm text-gray-600" x-text="'Emissions: ' + flight.emissions + ' kg CO2'"></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-blue-600" x-text="'€' + flight.price"></p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</body>
+</html>
